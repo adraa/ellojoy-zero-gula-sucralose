@@ -1,20 +1,49 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# Ellojoy Zero Gula - Landing Page
 
-# Run and deploy your AI Studio app
+Premium landing page for Ellojoy Zero Gula, optimized for the Malaysian market.
 
-This contains everything you need to run your app locally.
+**Live Site:** https://ellojoy-zero-gula-sucralose.pages.dev
 
-View your app in AI Studio: https://ai.studio/apps/drive/1r6fOVHAq7SQGuglvQBCtm9niNuQgwBk1
+## Local Development
 
-## Run Locally
-
-**Prerequisites:**  Node.js
-
+**Prerequisites:** Node.js 18+
 
 1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+   ```bash
+   npm install
+   ```
+
+2. Run the development server:
+   ```bash
+   npm run dev
+   ```
+
+3. Open http://localhost:5173 in your browser
+
+## Build & Deploy
+
+### Build Locally
+```bash
+npm run build
+```
+
+This creates an optimized production build in the `dist/` directory.
+
+### Cloudflare Pages Configuration
+
+**Build settings:**
+- **Build command:** `npm run build`
+- **Build output directory:** `dist`
+- **Root directory:** `/`
+- **Node version:** 18 or higher
+
+The site automatically deploys to Cloudflare Pages when you push to the `main` branch.
+
+## Tech Stack
+
+- React 19
+- TypeScript
+- Vite
+- Tailwind CSS (CDN)
+- Lucide React Icons
+- Stripe Integration
