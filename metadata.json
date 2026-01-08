@@ -1,5 +1,9 @@
 {
   "name": "Ellojoy Zero Gula - Premium Landing Page",
-  "description": "A high-conversion landing page for Ellojoy Zero Gula Sucralose sweetener, inspired by a premium content strategy event layout.",
-  "requestFramePermissions": []
+  "description": "High-conversion PESTA framework landing page for the Malaysian market, optimized for Cloudflare Edge delivery.",
+  "requestFramePermissions": [],
+  "deployment": {
+    "provider": "cloudflare-pages",
+    "framework": "react-tsx-standard"
+  }
 }
