@@ -355,6 +355,12 @@ const Marquee: React.FC<MarqueeProps> = ({
 }) => {
   const contentRef = useRef<HTMLDivElement>(null);
   const [duration, setDuration] = useState(30);
+  const items = React.Children.toArray(children);
+  const duplicatedItems = items.map((child, index) =>
+    React.isValidElement(child)
+      ? React.cloneElement(child, { key: `dup-${index}` })
+      : child
+  );
 
   useEffect(() => {
     const calculateDuration = () => {
@@ -383,10 +389,10 @@ const Marquee: React.FC<MarqueeProps> = ({
         }}
       >
         <div ref={contentRef} className="flex gap-6 flex-shrink-0">
-          {children}
+          {items}
         </div>
         <div className="flex gap-6 flex-shrink-0" aria-hidden="true">
-          {children}
+          {duplicatedItems}
         </div>
       </div>
     </div>
