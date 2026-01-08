@@ -19,7 +19,9 @@ import {
   Clock,
   ThumbsUp,
   HelpCircle,
-  Truck
+  Truck,
+  MessageCircle,
+  Loader2
 } from 'lucide-react';
 
 // --- Types & Data ---
@@ -75,7 +77,7 @@ const Navbar: React.FC = () => (
         <a href="#testimony" className="hover:text-white transition-colors">Bukti</a>
         <a href="#faq" className="hover:text-white transition-colors">FAQ</a>
       </div>
-      <a href="#action" className="bg-white text-black px-5 py-1.5 rounded-full text-xs font-bold hover:scale-105 transition-transform">
+      <a href="#action" className="bg-purple-600 text-white px-5 py-1.5 rounded-full text-xs font-bold hover:scale-105 transition-all shadow-lg shadow-purple-500/20 active:scale-95">
         Dapatkan Diskaun 50%
       </a>
     </div>
@@ -111,8 +113,11 @@ const HeroProblemSlider: React.FC = () => {
               {p.context}
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
-              <a href="#emphasize" className="bg-white text-black px-10 py-5 rounded-full font-bold text-lg hover:scale-105 transition-transform flex items-center justify-center gap-2">
+              <a href="#emphasize" className="bg-white text-black px-10 py-5 rounded-full font-bold text-lg hover:scale-105 transition-transform flex items-center justify-center gap-2 active:scale-95">
                 Lihat Bahaya Gula <ChevronRight size={20} />
+              </a>
+              <a href="#action" className="bg-purple-600/20 backdrop-blur-xl border border-purple-500/30 text-purple-200 px-10 py-5 rounded-full font-bold text-lg hover:bg-purple-600/40 transition-all flex items-center justify-center gap-2 active:scale-95">
+                Pilih Pakej Sihat <ArrowRight size={20} />
               </a>
             </div>
           </div>
@@ -169,6 +174,11 @@ const EmphasizeSection: React.FC = () => {
                     <p className="text-zinc-500 text-sm">Fruktosa berlebihan ditukar menjadi lemak yang menyelubungi hati anda.</p>
                   </div>
                </div>
+            </div>
+            <div className="mt-12">
+               <a href="#solution" className="inline-flex items-center gap-2 text-zinc-300 hover:text-white transition-colors group">
+                  Selesaikan Masalah Ini <ChevronRight className="group-hover:translate-x-1 transition-transform" />
+               </a>
             </div>
           </div>
           <div className="relative">
@@ -242,6 +252,12 @@ const SolutionSection: React.FC = () => {
               <p className="text-zinc-500">Satu botol kecil 17ml membekalkan sehingga 680 titisan manis.</p>
            </div>
         </div>
+
+        <div className="mt-20 text-center">
+          <a href="#action" className="bg-black text-white px-12 py-5 rounded-full font-bold text-xl hover:scale-105 transition-all shadow-xl active:scale-95 inline-flex items-center gap-3">
+             Tukar Sekarang <ArrowRight />
+          </a>
+        </div>
       </div>
     </section>
   );
@@ -265,7 +281,7 @@ const TestimonySection: React.FC = () => {
             <div key={i} className="p-10 rounded-[2.5rem] bg-zinc-900/50 border border-white/5 flex flex-col justify-between hover:bg-zinc-900 transition-colors">
               <p className="text-lg italic text-zinc-300 leading-relaxed mb-10">"{r.text}"</p>
               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-full bg-purple-600 flex items-center justify-center font-bold">{r.name[0]}</div>
+                <div className="w-12 h-12 rounded-full bg-purple-600 flex items-center justify-center font-bold text-white shadow-lg shadow-purple-500/20">{r.name[0]}</div>
                 <div>
                   <h4 className="font-bold text-sm">{r.name}</h4>
                   <p className="text-xs text-zinc-500 uppercase font-black">{r.city}</p>
@@ -300,7 +316,7 @@ const FAQSection: React.FC = () => {
             <div key={i} className="bg-white rounded-3xl border border-zinc-100 overflow-hidden shadow-sm">
               <button 
                 onClick={() => setOpen(i === open ? -1 : i)}
-                className="w-full p-8 flex justify-between items-center text-left font-bold text-lg"
+                className="w-full p-8 flex justify-between items-center text-left font-bold text-lg hover:bg-zinc-50 transition-colors"
               >
                 {f.q} {open === i ? <Minus size={20}/> : <Plus size={20}/>}
               </button>
@@ -319,7 +335,7 @@ const FAQSection: React.FC = () => {
 
 const ActionSection: React.FC = () => {
   const [selected, setSelected] = useState(1);
-  const [checkoutStep, setCheckoutStep] = useState<'selection' | 'stripe'>('selection');
+  const [checkoutStep, setCheckoutStep] = useState<'selection' | 'loading' | 'stripe' | 'success'>('selection');
   const [timeLeft, setTimeLeft] = useState(3600); // 1 hour urgency
   const revealRef = useReveal();
 
@@ -340,27 +356,43 @@ const ActionSection: React.FC = () => {
     { id: 2, name: "Family Pack", bottles: 4, price: 110, tag: "Jimat Gila", savings: "RM 30" }
   ];
 
+  const handleContinue = () => {
+    setCheckoutStep('loading');
+    setTimeout(() => {
+      setCheckoutStep('stripe');
+    }, 1500);
+  };
+
+  const handlePay = () => {
+    setCheckoutStep('loading');
+    setTimeout(() => {
+      setCheckoutStep('success');
+    }, 2500);
+  };
+
   return (
     <section id="action" className="py-32 bg-white text-black">
       <div ref={revealRef} className="reveal max-w-5xl mx-auto px-6">
-        <div className="text-center mb-16">
-          <div className="inline-flex items-center gap-2 bg-red-600 text-white px-4 py-2 rounded-full text-xs font-black uppercase tracking-widest mb-8 animate-pulse">
-            <Clock size={14}/> Tawaran Tamat Dalam: {formatTime(timeLeft)}
+        {checkoutStep !== 'success' && (
+          <div className="text-center mb-16">
+            <div className="inline-flex items-center gap-2 bg-red-600 text-white px-4 py-2 rounded-full text-xs font-black uppercase tracking-widest mb-8 animate-pulse shadow-lg shadow-red-500/20">
+              <Clock size={14}/> Tawaran Tamat Dalam: {formatTime(timeLeft)}
+            </div>
+            <h2 className="text-5xl md:text-8xl font-black tracking-tighter mb-4 text-balance">Satu lagi perkara.</h2>
+            <p className="text-zinc-400 text-lg md:text-xl font-bold uppercase tracking-[0.2em]">Pilih Pakej Anda & Nikmati Free Shipping Hari Ini.</p>
           </div>
-          <h2 className="text-5xl md:text-8xl font-black tracking-tighter mb-4 text-balance">Satu lagi perkara.</h2>
-          <p className="text-zinc-400 text-lg md:text-xl font-bold uppercase tracking-[0.2em]">Pilih Pakej Anda & Nikmati Free Shipping Hari Ini.</p>
-        </div>
+        )}
 
-        {checkoutStep === 'selection' ? (
+        {checkoutStep === 'selection' && (
           <div className="space-y-6 max-w-4xl mx-auto">
             {packs.map((p) => (
               <div 
                 key={p.id}
                 onClick={() => setSelected(p.id)}
-                className={`cursor-pointer group p-8 rounded-[2.5rem] border-2 transition-all flex flex-col md:flex-row items-center justify-between gap-6 ${selected === p.id ? 'border-purple-600 bg-purple-50' : 'border-zinc-100 bg-zinc-50 hover:border-zinc-200 shadow-sm'}`}
+                className={`cursor-pointer group p-8 rounded-[2.5rem] border-2 transition-all flex flex-col md:flex-row items-center justify-between gap-6 ${selected === p.id ? 'border-purple-600 bg-purple-50 shadow-xl shadow-purple-500/10' : 'border-zinc-100 bg-zinc-50 hover:border-zinc-200 shadow-sm'}`}
               >
                 <div className="flex items-center gap-6">
-                  <div className={`w-8 h-8 rounded-full border-2 flex items-center justify-center ${selected === p.id ? 'border-purple-600 bg-purple-600 shadow-lg shadow-purple-200' : 'border-zinc-300'}`}>
+                  <div className={`w-8 h-8 rounded-full border-2 flex items-center justify-center transition-all ${selected === p.id ? 'border-purple-600 bg-purple-600 shadow-lg shadow-purple-500/30' : 'border-zinc-300'}`}>
                     {selected === p.id && <div className="w-2.5 h-2.5 rounded-full bg-white" />}
                   </div>
                   <div>
@@ -377,7 +409,7 @@ const ActionSection: React.FC = () => {
             
             <div className="flex flex-col items-center pt-10">
               <button 
-                onClick={() => setCheckoutStep('stripe')}
+                onClick={handleContinue}
                 className="group px-16 py-6 bg-black text-white rounded-full font-black text-2xl hover:scale-105 transition-all flex items-center gap-4 shadow-2xl active:scale-95"
               >
                 Teruskan Ke Bayaran <ArrowRight className="group-hover:translate-x-2 transition-transform" />
@@ -392,7 +424,16 @@ const ActionSection: React.FC = () => {
               </div>
             </div>
           </div>
-        ) : (
+        )}
+
+        {checkoutStep === 'loading' && (
+          <div className="flex flex-col items-center justify-center py-20 text-zinc-500 gap-6">
+            <Loader2 className="w-16 h-16 animate-spin text-purple-600" />
+            <p className="text-xl font-bold animate-pulse">Menghubungkan ke Gateway Selamat...</p>
+          </div>
+        )}
+
+        {checkoutStep === 'stripe' && (
           <div className="max-w-md mx-auto animate-up bg-white rounded-[3rem] p-10 border border-zinc-100 shadow-2xl">
              <div className="flex items-center justify-between mb-10">
                 <div className="font-black text-xl tracking-tight">Stripe Checkout</div>
@@ -420,8 +461,8 @@ const ActionSection: React.FC = () => {
                 </div>
 
                 <button 
-                  onClick={() => alert("Pesanan Berjaya! Anda akan menerima e-mel pengesahan sebentar lagi.")}
-                  className="w-full py-5 bg-purple-600 text-white rounded-2xl font-black text-lg hover:bg-purple-700 transition-all shadow-xl shadow-purple-200"
+                  onClick={handlePay}
+                  className="w-full py-5 bg-purple-600 text-white rounded-2xl font-black text-lg hover:bg-purple-700 transition-all shadow-xl shadow-purple-200 active:scale-95"
                 >
                   Bayar Sekarang RM {packs[selected].price}.00
                 </button>
@@ -429,10 +470,38 @@ const ActionSection: React.FC = () => {
              </div>
           </div>
         )}
+
+        {checkoutStep === 'success' && (
+          <div className="max-w-2xl mx-auto text-center py-20 animate-up">
+            <div className="w-24 h-24 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-8">
+              <CheckCircle2 size={48} />
+            </div>
+            <h2 className="text-5xl font-black tracking-tighter mb-4">Terima Kasih!</h2>
+            <p className="text-xl text-zinc-500 mb-10">Pesanan anda telah berjaya diterima. Sila semak e-mel anda untuk butiran penghantaran.</p>
+            <button 
+              onClick={() => setCheckoutStep('selection')}
+              className="bg-black text-white px-10 py-4 rounded-full font-bold hover:scale-105 transition-all"
+            >
+              Kembali ke Laman Utama
+            </button>
+          </div>
+        )}
       </div>
     </section>
   );
 };
+
+const FloatingWhatsApp: React.FC = () => (
+  <a 
+    href="https://wa.me/60123456789?text=Saya%20berminat%20dengan%20Ellojoy" 
+    target="_blank" 
+    rel="noopener noreferrer"
+    className="fixed bottom-8 right-8 z-[90] bg-green-500 text-white p-4 rounded-full shadow-2xl shadow-green-500/40 hover:scale-110 transition-transform active:scale-90 group flex items-center gap-2"
+  >
+    <span className="max-w-0 overflow-hidden group-hover:max-w-[200px] transition-all duration-500 font-bold text-sm whitespace-nowrap">Tanya Kami di WhatsApp</span>
+    <MessageCircle size={28} />
+  </a>
+);
 
 const Footer: React.FC = () => (
   <footer className="py-24 bg-black text-zinc-500 border-t border-white/5">
@@ -480,6 +549,7 @@ export default function App() {
         <FAQSection />
       </main>
       <Footer />
+      <FloatingWhatsApp />
     </div>
   );
 }
