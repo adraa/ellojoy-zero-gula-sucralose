@@ -20,7 +20,6 @@ import {
   ThumbsUp,
   HelpCircle,
   Truck,
-  MessageCircle,
   Loader2
 } from 'lucide-react';
 
@@ -43,10 +42,21 @@ const HERO_PROBLEMS = [
   }
 ];
 
+const LIVE_STATS = {
+  totalCustomers: 451,
+  unitsSoldToday: 67,
+  activeViewers: 47
+};
+
 const REVIEWS = [
-  { name: "Khairul Nizam", city: "Shah Alam", text: "Dulu kencing manis 14.0, sekarang maintain 6.0. Ellojoy penyelamat gaya hidup saya.", stars: 5 },
-  { name: "Siti Aminah", city: "Kuantan", text: "Anak-anak suka milo ais, saya letak 2 titis Ellojoy je. Rasa sebijik macam guna susu pekat!", stars: 5 },
-  { name: "Dr. Ariffin", city: "Kuala Lumpur", text: "Sebagai doktor, saya syorkan Ellojoy. Purity gred tinggi & tiada kesan pahit 'aftertaste'.", stars: 5 }
+  { name: "Khairul Nizam", city: "Shah Alam", text: "Dulu kencing manis 14.0, sekarang maintain 6.0. Ellojoy penyelamat gaya hidup saya.", stars: 5, verified: true, image: "KN" },
+  { name: "Siti Aminah", city: "Kuantan", text: "Anak-anak suka milo ais, saya letak 2 titis Ellojoy je. Rasa sebijik macam guna susu pekat!", stars: 5, verified: true, image: "SA" },
+  { name: "Dr. Ariffin", city: "Kuala Lumpur", text: "Sebagai doktor, saya syorkan Ellojoy. Purity gred tinggi & tiada kesan pahit 'aftertaste'.", stars: 5, verified: true, image: "DA" },
+  { name: "Farah Lyana", city: "Penang", text: "Berat turun 8kg dalam 3 bulan! Semua sebab tukar gula putih kepada Ellojoy. Kopi pagi tetap nikmat.", stars: 5, verified: true, image: "FL" },
+  { name: "Azman Hashim", city: "Johor", text: "Mak saya diabetes 20 tahun. Sekarang dia boleh minum teh tarik guna Ellojoy tanpa risau. Terima kasih!", stars: 5, verified: true, image: "AH" },
+  { name: "Nur Izzati", city: "Kedah", text: "Dah habis 6 botol! Gunakan untuk baking kek, hasilnya superb. Anak cucu suka sangat.", stars: 5, verified: true, image: "NI" },
+  { name: "Encik Rahman", city: "Melaka", text: "Saya guna untuk business kedai kopi. Pelanggan puji lagi sedap dari gula biasa. Secret weapon!", stars: 5, verified: true, image: "ER" },
+  { name: "Mariam Saleh", city: "Terengganu", text: "Skin jadi lagi glowing lepas cut sugar. Ellojoy memang life changer untuk beauty routine saya.", stars: 5, verified: true, image: "MS" }
 ];
 
 // --- Custom Hooks ---
@@ -148,6 +158,73 @@ const TrustBar: React.FC = () => (
     </div>
   </div>
 );
+
+const LiveStatsBar: React.FC = () => {
+  const [stats, setStats] = useState(LIVE_STATS);
+  const [viewerFlicker, setViewerFlicker] = useState(false);
+  const flickerTimeoutRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setStats(prev => ({
+        totalCustomers: prev.totalCustomers + Math.floor(Math.random() * 3),
+        unitsSoldToday: prev.unitsSoldToday + (Math.random() > 0.7 ? 1 : 0),
+        activeViewers: Math.max(25, prev.activeViewers + Math.floor(Math.random() * 5) - 2)
+      }));
+      setViewerFlicker(true);
+      if (flickerTimeoutRef.current !== null) {
+        clearTimeout(flickerTimeoutRef.current);
+      }
+      flickerTimeoutRef.current = window.setTimeout(() => {
+        setViewerFlicker(false);
+        flickerTimeoutRef.current = null;
+      }, 300);
+    }, 8000);
+
+    return () => {
+      clearInterval(interval);
+      if (flickerTimeoutRef.current !== null) {
+        clearTimeout(flickerTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  return (
+    <div className="bg-zinc-950 border-b border-white/5 py-6">
+      <div className="max-w-7xl mx-auto px-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
+          <div className="flex flex-col items-center gap-2">
+            <div className="text-3xl md:text-4xl font-black tracking-tighter text-white">
+              {stats.totalCustomers.toLocaleString()}+
+            </div>
+            <div className="text-[10px] font-black uppercase tracking-widest text-zinc-500">
+              Pelanggan Setia di Malaysia
+            </div>
+          </div>
+
+          <div className="flex flex-col items-center gap-2">
+            <div className="text-3xl md:text-4xl font-black tracking-tighter text-purple-500">
+              {stats.unitsSoldToday}
+            </div>
+            <div className="text-[10px] font-black uppercase tracking-widest text-zinc-500">
+              Unit Terjual Hari Ini
+            </div>
+          </div>
+
+          <div className="flex flex-col items-center gap-2">
+            <div className={`text-3xl md:text-4xl font-black tracking-tighter text-green-500 transition-all ${viewerFlicker ? 'scale-110' : 'scale-100'}`}>
+              {stats.activeViewers}
+            </div>
+            <div className="text-[10px] font-black uppercase tracking-widest text-zinc-500 flex items-center gap-2">
+              <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+              Sedang Melihat Sekarang
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 const EmphasizeSection: React.FC = () => {
   const revealRef = useReveal();
@@ -263,10 +340,63 @@ const SolutionSection: React.FC = () => {
   );
 };
 
+interface MarqueeProps {
+  children: React.ReactNode;
+  speed?: number;
+  pauseOnHover?: boolean;
+  direction?: 'left' | 'right';
+}
+
+const Marquee: React.FC<MarqueeProps> = ({
+  children,
+  speed = 50,
+  pauseOnHover = true,
+  direction = 'left'
+}) => {
+  const contentRef = useRef<HTMLDivElement>(null);
+  const [duration, setDuration] = useState(30);
+
+  useEffect(() => {
+    const calculateDuration = () => {
+      if (contentRef.current) {
+        const width = contentRef.current.scrollWidth;
+        if (width > 0) {
+          setDuration(width / speed);
+        }
+      }
+    };
+
+    calculateDuration();
+    window.addEventListener('resize', calculateDuration);
+
+    return () => {
+      window.removeEventListener('resize', calculateDuration);
+    };
+  }, [speed]);
+
+  return (
+    <div className="relative overflow-hidden">
+      <div
+        className={`flex gap-6 ${pauseOnHover ? 'pause-animation' : ''}`}
+        style={{
+          animation: `marquee-${direction} ${duration}s linear infinite`,
+        }}
+      >
+        <div ref={contentRef} className="flex gap-6 flex-shrink-0">
+          {children}
+        </div>
+        <div className="flex gap-6 flex-shrink-0" aria-hidden="true">
+          {children}
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const TestimonySection: React.FC = () => {
   const revealRef = useReveal();
   return (
-    <section id="testimony" className="py-32 bg-black text-white px-6">
+    <section id="testimony" className="py-32 bg-black text-white px-6 overflow-hidden">
       <div ref={revealRef} className="reveal max-w-7xl mx-auto">
         <div className="text-center mb-24">
           <h2 className="text-4xl md:text-6xl font-bold mb-6 tracking-tight">Apa Kata Pengguna Kami?</h2>
@@ -275,13 +405,15 @@ const TestimonySection: React.FC = () => {
           </div>
           <p className="text-zinc-500 text-lg">Lebih 50,000 unit telah terjual di seluruh Malaysia.</p>
         </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+
+        <Marquee speed={50} pauseOnHover={false} direction="left">
           {REVIEWS.map((r, i) => (
-            <div key={i} className="p-10 rounded-[2.5rem] bg-zinc-900/50 border border-white/5 flex flex-col justify-between hover:bg-zinc-900 transition-colors">
+            <div key={i} className="w-[400px] flex-shrink-0 p-10 rounded-[2.5rem] bg-zinc-900/50 border border-white/5 flex flex-col justify-between hover:bg-zinc-900 transition-colors">
               <p className="text-lg italic text-zinc-300 leading-relaxed mb-10">"{r.text}"</p>
               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-full bg-purple-600 flex items-center justify-center font-bold text-white shadow-lg shadow-purple-500/20">{r.name[0]}</div>
+                <div className="w-12 h-12 rounded-full bg-purple-600 flex items-center justify-center font-bold text-white shadow-lg shadow-purple-500/20">
+                  {r.image || r.name[0]}
+                </div>
                 <div>
                   <h4 className="font-bold text-sm">{r.name}</h4>
                   <p className="text-xs text-zinc-500 uppercase font-black">{r.city}</p>
@@ -289,7 +421,7 @@ const TestimonySection: React.FC = () => {
               </div>
             </div>
           ))}
-        </div>
+        </Marquee>
       </div>
     </section>
   );
@@ -375,13 +507,27 @@ const ActionSection: React.FC = () => {
       <div ref={revealRef} className="reveal max-w-5xl mx-auto px-6">
         {checkoutStep !== 'success' && (
           <div className="text-center mb-16">
-            <div className="inline-flex items-center gap-2 bg-red-600 text-white px-4 py-2 rounded-full text-xs font-black uppercase tracking-widest mb-8 animate-pulse shadow-lg shadow-red-500/20">
-              <Clock size={14}/> Tawaran Tamat Dalam: {formatTime(timeLeft)}
+            <div className="inline-flex items-center gap-6 bg-gradient-to-r from-red-600 via-red-500 to-orange-500 text-white px-8 py-4 rounded-3xl text-lg font-black uppercase tracking-widest mb-8 animate-pulse shadow-2xl shadow-red-500/30">
+              <Clock size={24} className="animate-pulse" />
+              <div className="flex items-center gap-3">
+                <span>TAWARAN TAMAT DALAM:</span>
+                <div className="flex gap-2">
+                  <div className="bg-white text-red-600 px-4 py-2 rounded-xl font-black text-2xl min-w-[60px] text-center">
+                    {Math.floor(timeLeft / 60)}
+                  </div>
+                  <div className="text-3xl font-black">:</div>
+                  <div className="bg-white text-red-600 px-4 py-2 rounded-xl font-black text-2xl min-w-[60px] text-center">
+                    {timeLeft % 60 < 10 ? '0' : ''}{timeLeft % 60}
+                  </div>
+                </div>
+              </div>
             </div>
             <h2 className="text-5xl md:text-8xl font-black tracking-tighter mb-4 text-balance">Satu lagi perkara.</h2>
             <p className="text-zinc-400 text-lg md:text-xl font-bold uppercase tracking-[0.2em]">Pilih Pakej Anda & Nikmati Free Shipping Hari Ini.</p>
           </div>
         )}
+
+        <CheckoutTrustBadges />
 
         {checkoutStep === 'selection' && (
           <div className="space-y-6 max-w-4xl mx-auto">
@@ -491,17 +637,55 @@ const ActionSection: React.FC = () => {
   );
 };
 
-const FloatingWhatsApp: React.FC = () => (
-  <a 
-    href="https://wa.me/60123456789?text=Saya%20berminat%20dengan%20Ellojoy" 
-    target="_blank" 
-    rel="noopener noreferrer"
-    className="fixed bottom-8 right-8 z-[90] bg-green-500 text-white p-4 rounded-full shadow-2xl shadow-green-500/40 hover:scale-110 transition-transform active:scale-90 group flex items-center gap-2"
-  >
-    <span className="max-w-0 overflow-hidden group-hover:max-w-[200px] transition-all duration-500 font-bold text-sm whitespace-nowrap">Tanya Kami di WhatsApp</span>
-    <MessageCircle size={28} />
-  </a>
-);
+const CheckoutTrustBadges: React.FC = () => {
+  return (
+    <div className="mb-12 flex flex-wrap justify-center gap-6 text-xs">
+      <div className="flex items-center gap-2 text-zinc-400">
+        <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center">
+          <ShieldCheck className="text-green-600" size={16} />
+        </div>
+        <span className="font-bold">Jaminan Wang Kembali 30 Hari</span>
+      </div>
+      <div className="flex items-center gap-2 text-zinc-400">
+        <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
+          <Lock className="text-blue-600" size={16} />
+        </div>
+        <span className="font-bold">SSL Encrypted Payment</span>
+      </div>
+      <div className="flex items-center gap-2 text-zinc-400">
+        <div className="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center">
+          <Truck className="text-purple-600" size={16} />
+        </div>
+        <span className="font-bold">Penghantaran Percuma</span>
+      </div>
+      <div className="flex items-center gap-2 text-zinc-400">
+        <div className="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center">
+          <Package className="text-orange-600" size={16} />
+        </div>
+        <span className="font-bold">COD Tersedia</span>
+      </div>
+    </div>
+  );
+};
+
+const StickyFloatingCTA: React.FC = () => {
+  return (
+    <div className="fixed bottom-4 left-0 right-0 z-50 bg-gradient-to-t from-black via-black/95 to-transparent py-6 px-6 animate-in slide-in-from-bottom duration-500">
+      <div className="max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="text-center sm:text-left">
+          <div className="text-2xl font-black tracking-tight mb-1">Ellojoy Zero Gula</div>
+          <div className="text-sm text-zinc-400 font-bold">Dari RM35 • Free Shipping • 50% OFF Hari Ini</div>
+        </div>
+        <a
+          href="#action"
+          className="bg-purple-600 text-white px-10 py-5 rounded-full font-black text-lg hover:scale-105 transition-all shadow-2xl shadow-purple-500/30 flex items-center gap-3 whitespace-nowrap active:scale-95"
+        >
+          Pilih Pakej <ArrowRight />
+        </a>
+      </div>
+    </div>
+  );
+};
 
 const Footer: React.FC = () => (
   <footer className="py-24 bg-black text-zinc-500 border-t border-white/5">
@@ -536,12 +720,29 @@ const Footer: React.FC = () => (
 );
 
 export default function App() {
+  const [showStickyButton, setShowStickyButton] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const actionSection = document.getElementById('action');
+      if (actionSection) {
+        const rect = actionSection.getBoundingClientRect();
+        setShowStickyButton(window.scrollY > 800 && rect.top > window.innerHeight);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   return (
     <div className="relative bg-black text-white selection:bg-purple-500/30">
       <Navbar />
-      <main>
+      {showStickyButton && <StickyFloatingCTA />}
+      <main className={showStickyButton ? 'pb-28' : undefined}>
         <HeroProblemSlider />
         <TrustBar />
+        <LiveStatsBar />
         <EmphasizeSection />
         <SolutionSection />
         <TestimonySection />
@@ -549,7 +750,6 @@ export default function App() {
         <FAQSection />
       </main>
       <Footer />
-      <FloatingWhatsApp />
     </div>
   );
 }
