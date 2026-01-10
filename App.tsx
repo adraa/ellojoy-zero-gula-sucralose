@@ -729,15 +729,23 @@ export default function App() {
   const [showStickyButton, setShowStickyButton] = useState(false);
 
   useEffect(() => {
+    let ticking = false;
+
     const handleScroll = () => {
-      const actionSection = document.getElementById('action');
-      if (actionSection) {
-        const rect = actionSection.getBoundingClientRect();
-        setShowStickyButton(window.scrollY > 800 && rect.top > window.innerHeight);
+      if (!ticking) {
+        requestAnimationFrame(() => {
+          const actionSection = document.getElementById('action');
+          if (actionSection) {
+            const rect = actionSection.getBoundingClientRect();
+            setShowStickyButton(window.scrollY > 800 && rect.top > window.innerHeight);
+          }
+          ticking = false;
+        });
+        ticking = true;
       }
     };
 
-    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
